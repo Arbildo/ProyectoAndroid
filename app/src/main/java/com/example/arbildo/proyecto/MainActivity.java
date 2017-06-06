@@ -1,54 +1,114 @@
 package com.example.arbildo.proyecto;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.nfc.Tag;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
+
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.facebook.login.widget.ProfilePictureView;
 
-import java.io.InputStream;
-import java.net.URL;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.util.Arrays;
+
 
 public class MainActivity extends AppCompatActivity {
-
+    ProfilePictureView profilePictureView;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
     TextView info;
+    private AccessToken accessToken;
+    private AccessTokenTracker accessTokenTracker;
+    private TextView email;
+    private TextView gender;
+    private TextView facebookName;
 
-    @Override
+
+   @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager= CallbackManager.Factory.create();
         loginButton=(LoginButton) findViewById(R.id.login_button);
-        info=(TextView) findViewById(R.id.tv1);
 
-        LoginManager.getInstance().registerCallback(callbackManager,
-                new FacebookCallback<LoginResult>() {
+       loginButton.setReadPermissions(Arrays.asList("public_profile", "email", "user_birthday", "user_friends"));
+
+    facebookName= (TextView) findViewById(R.id.tvfb) ;
+       email=(TextView) findViewById(R.id.tvemail);
+
+       profilePictureView = (ProfilePictureView) findViewById(R.id.friendProfilePicture);
+        LoginManager.getInstance().registerCallback(callbackManager,new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        String id=loginResult.getAccessToken().getUserId();
-                        info.setText("ID del usuario: "+loginResult.getAccessToken().getUserId()+ "\n"+"Token: "+loginResult.getAccessToken().getToken() );
+                        final String id=loginResult.getAccessToken().getUserId();
 
-                        ProfilePictureView profilePictureView;
-                        profilePictureView = (ProfilePictureView) findViewById(R.id.friendProfilePicture);
-                        profilePictureView.setProfileId(id);
+                       // info.setText("ID del usuario: "+loginResult.getAccessToken().getUserId()+ "\n"+"Token: "+loginResult.getAccessToken().getToken() );
+
+                        //profilePictureView.setProfileId(id);
+
+                        GraphRequest request = GraphRequest.newMeRequest(
+                                loginResult.getAccessToken(),
+                                new GraphRequest.GraphJSONObjectCallback() {
+
+                                    @Override
+                                    public void onCompleted(JSONObject object, GraphResponse response) {
+                                        Log.v("Main", response.toString());
+
+                                        try {
+                                           String jemail=(object.getString("email"));
+                                            String jnombre=(object.getString("name"));
+                                            Intent datos = new Intent(getApplicationContext(), SegundoActivity.class);
+                                            datos.putExtra("IdUsuario", id);
+                                            datos.putExtra("NombreUsuario",jemail);
+                                            datos.putExtra("EmailUsuario",jnombre);
+                                            startActivity(datos);
+
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+
+
+                                        //CapturadeDatos(object);
+                                    }
+                                });
+                        Bundle parameters = new Bundle();
+                        parameters.putString("fields", "id,name,email, birthday");
+                        request.setParameters(parameters);
+                        request.executeAsync();
+
+
+
+
+
+                       Intent datos = new Intent(getApplicationContext(), SegundoActivity.class);
+                        datos.putExtra("IdUsuario", id);
+                       startActivity(datos);
+
+
+
+
                     }
 
                     @Override
@@ -64,12 +124,26 @@ public class MainActivity extends AppCompatActivity {
 
                 });
 
+
     }
+
+
+
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+    private void CapturadeDatos(JSONObject jsonObject) {
+        try {
+            email.setText(jsonObject.getString("email"));
+            facebookName.setText(jsonObject.getString("name"));
 
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
      }
 
 
