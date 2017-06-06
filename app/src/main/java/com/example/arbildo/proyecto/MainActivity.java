@@ -35,12 +35,10 @@ public class MainActivity extends AppCompatActivity {
     ProfilePictureView profilePictureView;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
-    TextView info;
+
     private AccessToken accessToken;
     private AccessTokenTracker accessTokenTracker;
-    private TextView email;
-    private TextView gender;
-    private TextView facebookName;
+
 
 
    @Override
@@ -54,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
        loginButton.setReadPermissions(Arrays.asList("public_profile", "email", "user_birthday", "user_friends"));
 
-    facebookName= (TextView) findViewById(R.id.tvfb) ;
-       email=(TextView) findViewById(R.id.tvemail);
+
 
        profilePictureView = (ProfilePictureView) findViewById(R.id.friendProfilePicture);
         LoginManager.getInstance().registerCallback(callbackManager,new FacebookCallback<LoginResult>() {
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                                         Log.v("Main", response.toString());
 
                                         try {
-                                           String jemail=(object.getString("email"));
+                                            String jemail=(object.getString("email"));
                                             String jnombre=(object.getString("name"));
                                             Intent datos = new Intent(getApplicationContext(), SegundoActivity.class);
                                             datos.putExtra("IdUsuario", id);
@@ -134,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
-    private void CapturadeDatos(JSONObject jsonObject) {
+   /*private void CapturadeDatos(JSONObject jsonObject) {
         try {
             email.setText(jsonObject.getString("email"));
             facebookName.setText(jsonObject.getString("name"));
@@ -143,8 +140,6 @@ public class MainActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
      }
 
-
-}
