@@ -21,10 +21,11 @@
         android:layout_weight="0.06"
         android:elevation="10dp"
         tools:layout_constraintTop_creator="1"
-        android:layout_marginTop="42dp"
+        android:layout_marginTop="313dp"
         tools:layout_constraintLeft_creator="1"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+       android:layout_marginLeft="69dp" />
 
 
 </android.support.constraint.ConstraintLayout>
